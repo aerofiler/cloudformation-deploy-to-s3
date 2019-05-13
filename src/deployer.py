@@ -47,6 +47,8 @@ def upload(lambda_src, target_bucket, acl, cacheControl):
         source_file_path = os.path.join(folder, filename)
         destination_s3_key = os.path.relpath(source_file_path, lambda_src)
         contentType, encoding = mimetypes.guess_type(source_file_path)
+        if contentType is None:
+          contentType = 'application/octet-stream'
         upload_file(source_file_path, target_bucket,
                     destination_s3_key, s3, acl, cacheControl, contentType)
 
