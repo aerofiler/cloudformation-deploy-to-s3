@@ -1,4 +1,4 @@
-DEPLOYMENT_BUCKET_NAME ?= desole-packaging
+DEPLOYMENT_BUCKET_NAME ?= s3-packaging.erphe.us
 DEPLOYMENT_KEY := $(shell echo s3-deployment-$$RANDOM.zip)
 STACK_NAME ?= s3-deployment
 
@@ -12,7 +12,7 @@ build/python/deployer.py: src/deployer.py build/python
 	cp $< $@
 
 build/python/requests: build/python
-	pip install requests --target build/python
+	pip3 install requests -t build/python
 
 build/layer.zip: build/python/deployer.py build/python/requests
 	cd build/ && zip -r layer.zip python
