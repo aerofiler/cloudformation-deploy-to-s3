@@ -19,6 +19,13 @@ def resource_handler(event, context):
     acl = event['ResourceProperties']['Acl']
     cacheControl = 'max-age=' + \
         event['ResourceProperties']['CacheControlMaxAge']
+
+    if 'BucketPrefix' in event['ResourceProperties'].keys():
+      bucket_prefix = event['ResourceProperties']['BucketPrefix'] + "/"
+    else:
+      bucket_prefix = ""
+
+
     print(event['RequestType'])
     if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
       
@@ -28,7 +35,7 @@ def resource_handler(event, context):
         lambda_src = temp_dir
 
       print('uploading')
-      upload(lambda_src, target_bucket, acl, cacheControl)
+      upload(lambda_src, target_bucket, acl, cacheControl, bucket_prefix)
     else:
       print('ignoring')
 
@@ -42,11 +49,11 @@ def resource_handler(event, context):
   return event
 
 
-def upload(lambda_src, target_bucket, acl, cacheControl):
+def upload(lambda_src, target_bucket, acl, cacheControl, bucket_prefix):
   for folder, subs, files in os.walk(lambda_src):
     for filename in files:
         source_file_path = os.path.join(folder, filename)
-        destination_s3_key = os.path.relpath(source_file_path, lambda_src)
+        destination_s3_key = bucket_prefix + os.path.relpath(source_file_path, lambda_src)
         contentType, encoding = mimetypes.guess_type(source_file_path)
         if contentType is None:
           contentType = 'application/octet-stream'
